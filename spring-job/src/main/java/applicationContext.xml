@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<!-- 需要调度的任务 -->
+	<bean id="myTimeOne" class="com.wcz.job.MyTimeOne"></bean>
+	<!-- 定义定时执行的方法 （定时执行myTimeOne的sayHi()） -->
+	<bean id="myTimeOneTask"
+		class="org.springframework.scheduling.quartz.MethodInvokingJobDetailFactoryBean">
+		<property name="targetObject">
+			<ref bean="myTimeOne" />
+		</property>
+		<property name="targetMethod">
+			<value>sayHi</value>
+		</property>
+	</bean>
+
+	<!-- 触发器的设置 -->
+	<!-- 设置Hello这个任务的触发器， 每隔10秒钟触发一次 -->
+	<bean id="myHelloJob"
+		class="org.springframework.scheduling.quartz.CronTriggerFactoryBean">
+		<property name="jobDetail">
+			<ref bean="myTimeOneTask"/>
+		</property>
+		<property name="cronExpression">
+			<!-- 格式解释：秒 分 时 日 月 年 -->
+			<value>0/10 * * * * ?</value>
+		</property>
+	</bean>
+
+	<!-- 管理触发器（可以设置多个） -->
+	<bean class="org.springframework.scheduling.quartz.SchedulerFactoryBean">
+		<property name="triggers">
+			<list>
+				<ref bean="myHelloJob" />
+			</list>
+		</property>
+	</bean>
+</beans>
